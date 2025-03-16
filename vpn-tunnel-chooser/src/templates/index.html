@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProtoFlex</title>
+  <!-- Google Fonts: Nunito для тела и Montserrat для заголовка -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Nunito:wght@300;400;600&display=swap"
+    rel="stylesheet">
+  <style>
+    /* Анимация для фона шапки */
+    @keyframes bgAnimation {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    /* Анимация свечения для заголовка */
+    @keyframes textGlow {
+      0% {
+        text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 255, 255, 0.8);
+      }
+
+      50% {
+        text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 255, 255, 1);
+      }
+
+      100% {
+        text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 255, 255, 0.8);
+      }
+    }
+
+    /* Шапка сайта */
+    header {
+      width: 100%;
+      padding: 30px;
+      text-align: center;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      background-size: 200% 200%;
+      color: #fff;
+      font-family: 'Montserrat', sans-serif;
+      animation: bgAnimation 15s ease infinite;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      font-size: 3.5rem;
+      margin: 0;
+      letter-spacing: 2px;
+      animation: textGlow 2s ease-in-out infinite;
+    }
+
+    header p {
+      font-size: 1.2rem;
+      margin: 10px 0 0;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 400;
+      letter-spacing: 1px;
+      opacity: 0.9;
+    }
+
+    /* Основной стиль страницы */
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #e8f4fd;
+      /* светлый голубой фон */
+      font-family: 'Nunito', sans-serif;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 20px;
+      color: #333;
+    }
+
+    /* Стиль колонок */
+    .column {
+      width: 45%;
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    h2 {
+      color: #555;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    /* Контейнеры для списка с возможностью скролла при переполнении */
+    #servers-list,
+    #executables-list {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-top: 20px;
+    }
+
+    /* Элементы списка */
+    .item {
+      font-size: 25px;
+      padding: 15px;
+      border-bottom: 1px solid #e0e0e0;
+      transition: background 0.3s ease;
+    }
+
+    .item:last-child {
+      border-bottom: none;
+    }
+
+    .item:hover {
+      background: #d0ebff;
+    }
+
+    /* Кнопки с улучшенной читаемостью */
+    button {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      border: none;
+      border-radius: 25px;
+      padding: 10px 25px;
+      font-size: 16px;
+      color: #fff;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Модальные окна */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.1);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal {
+      background: #fff;
+      padding: 30px 50px;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      transition: opacity 0.3s ease;
+    }
+
+    /* Стили для форм */
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>PROTOFLEX</h1>
+    <p>Seamless VPN Tunneling for Every Connection.</p>
+  </header>
+  <!-- Левая колонка (Серверы) -->
+  <div class="column">
+    <h2>Servers</h2>
+    <div id="servers-list"></div>
+    <button id="add-server-btn">+ Add Server</button>
+  </div>
+
+  <!-- Правая колонка (Executables) -->
+  <div class="column">
+    <h2>Executables</h2>
+    <div id="executables-list"></div>
+    <button id="add-btn">+ Add Executable</button>
+  </div>
+
+  <!-- Общие модальные окна -->
+  <div id="connect-modal" class="modal-backdrop">
+    <div class="modal">
+      <p>Connect this executable?</p>
+      <button id="connect-confirm">Connect</button>
+      <button id="connect-cancel">Cancel</button>
+    </div>
+  </div>
+
+  <div id="add-modal" class="modal-backdrop">
+    <div class="modal">
+      <h3>Add Executable</h3>
+      <label>Path: <input type="text" id="path-input" /></label><br />
+      <label>Arguments: <input type="text" id="args-input" /></label><br />
+      <label>Tunnel: <select id="tunnel-select"></select></label><br /><br />
+      <button id="add-save">Save</button>
+      <button id="add-cancel">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Модалка "Добавить сервер (IP, порт, туннели)" -->
+  <div id="server-modal" class="modal-backdrop">
+    <div class="modal">
+      <h3>Add Server</h3>
+      <label>Name: <input type="text" id="server-name" /></label><br />
+      <label>IP: <input type="text" id="server-ip" /></label><br />
+      <label>Port: <input type="text" id="server-port" /></label><br />
+      <label>Tunnels: <input type="text" id="server-tunnels" /></label><br /><br />
+      <button id="server-next">Next</button>
+      <button id="server-cancel">Cancel</button>
+    </div>
+  </div>
+
+  <div id="token-modal" class="modal-backdrop">
+    <div class="modal">
+      <h3>Enter Token</h3>
+      <input type="text" id="server-token" /><br /><br />
+      <button id="token-confirm">Confirm</button>
+      <button id="token-cancel">Cancel</button>
+    </div>
+  </div>
+
+  <!-- JavaScript остается прежним -->
+  <script>
+    const apiBase = "http://localhost:8080";
+    let selectedExec = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadExecutables();
+      loadServers();
+
+      document.getElementById("add-server-btn").addEventListener("click", openServerModal);
+      document.getElementById("server-next").addEventListener("click", generateToken);
+      document.getElementById("token-confirm").addEventListener("click", validateToken);
+      document.getElementById("server-cancel").addEventListener("click", closeServerModal);
+
+      document.getElementById("connect-confirm").addEventListener("click", doConnect);
+      document.getElementById("connect-cancel").addEventListener("click", closeConnectModal);
+
+      document.getElementById("add-btn").addEventListener("click", openAddModal);
+      document.getElementById("add-save").addEventListener("click", addExecutable);
+      document.getElementById("add-cancel").addEventListener("click", closeAddModal);
+
+      document.getElementById("token-confirm").addEventListener("click", validateToken);
+      document.getElementById("token-cancel").addEventListener("click", closeTokenModal);
+    });
+
+    function loadExecutables() {
+      fetch(apiBase + "/executables")
+        .then(res => res.json())
+        .then((data) => {
+          console.log(data);
+          renderExecutables(data);
+        })
+        .catch(err => console.error("Error loading executables:", err));
+    }
+
+    function loadServers() {
+      fetch(`${apiBase}/servers`)
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById("servers-list");
+          list.innerHTML = "";
+          data.forEach(s => {
+            const div = document.createElement("div");
+            div.className = "item";
+            div.innerHTML = `<strong>${s.Name}</strong><br>IP: ${s.Ip} | Tunnels: ${s.TunnelList}`;
+            list.appendChild(div);
+          });
+        });
+    }
+
+    function renderExecutables(execs) {
+      const listDiv = document.getElementById("executables-list");
+      listDiv.innerHTML = "";
+      execs.forEach(ex => {
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "item";
+
+        const title = document.createElement("h3");
+        title.textContent = ex.Path;
+        itemDiv.appendChild(title);
+
+        const desc = document.createElement("p");
+        desc.textContent = `Tunnel: ${ex.Interface}`;
+        itemDiv.appendChild(desc);
+
+        const connectBtn = document.createElement("button");
+        connectBtn.textContent = "Connect";
+        connectBtn.addEventListener("click", () => {
+          selectedExec = ex;
+          openConnectModal();
+        });
+        itemDiv.appendChild(connectBtn);
+
+        listDiv.appendChild(itemDiv);
+      });
+    }
+
+    function openConnectModal() {
+      document.getElementById("connect-modal").style.display = "flex";
+    }
+    function closeConnectModal() {
+      document.getElementById("connect-modal").style.display = "none";
+      selectedExec = null;
+    }
+    function doConnect() {
+      if (!selectedExec) {
+        closeConnectModal();
+        return;
+      }
+      fetch(apiBase + "/executables/connect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tunnel_id: selectedExec.TunnelId,
+          path: selectedExec.Path,
+          arguments: selectedExec.Arguments
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log("Connect response:", data);
+          closeConnectModal();
+        })
+        .catch(err => {
+          console.error("Error connecting:", err);
+          alert("Error connecting");
+        });
+    }
+
+    function openAddModal() {
+      fetch(apiBase + "/tunnels")
+        .then(res => res.json())
+        .then(tunnels => {
+          const select = document.getElementById("tunnel-select");
+          select.innerHTML = "";
+          tunnels.forEach(t => {
+            const opt = document.createElement("option");
+            opt.value = t.InterfaceName;
+            opt.textContent = t.InterfaceName;
+            select.appendChild(opt);
+          });
+          document.getElementById("add-modal").style.display = "flex";
+        })
+        .catch(err => console.error("Error loading tunnels:", err));
+    }
+    function closeAddModal() {
+      document.getElementById("add-modal").style.display = "none";
+    }
+
+    function addExecutable() {
+      const pathVal = document.getElementById("path-input").value;
+      const argsVal = document.getElementById("args-input").value;
+      const tunVal = document.getElementById("tunnel-select").value;
+      fetch(apiBase + "/executables", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          path: pathVal,
+          arguments: argsVal,
+          tunnel_id: tunVal
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log("Add response:", data);
+          alert(data.message || "Added successfully");
+          closeAddModal();
+          loadExecutables();
+        })
+        .catch(err => {
+          console.error("Error adding executable:", err);
+          closeAddModal();
+        });
+    }
+
+    function openServerModal() {
+      document.getElementById("server-modal").style.display = "flex";
+    }
+    function closeServerModal() {
+      document.getElementById("server-modal").style.display = "none";
+    }
+
+    function generateToken() {
+      serverData = {
+        name: document.getElementById("server-name").value,
+        ip: document.getElementById("server-ip").value,
+        port: document.getElementById("server-port").value,
+        tunnel_list: document.getElementById("server-tunnels").value
+      };
+      fetch(`${apiBase}/connections/generate-token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ip: serverData.ip, port: serverData.port })
+      }).then(() => {
+        document.getElementById("server-modal").style.display = "none";
+        document.getElementById("token-modal").style.display = "flex";
+      });
+    }
+
+    function validateToken() {
+      const token = document.getElementById("server-token").value;
+      fetch(`${apiBase}/connections/validate-token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: token, ip: serverData.ip, port: serverData.port })
+      })
+        .then(res => {
+          if (res.status === 200) {
+            console.log("Token is valid");
+            return fetch(`${apiBase}/servers`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ...serverData, token })
+            })
+              .then(response => response.json())
+              .then(data => {
+                if (data.error === "tunnel already exists") {
+                  alert("Tunnel already exists");
+                  throw new Error("Tunnel already exists");
+                } else {
+                  loadServers();
+                }
+              });
+          } else {
+            throw new Error("Invalid token");
+          }
+        })
+        .then(() => {
+          document.getElementById("token-modal").style.display = "none";
+          loadServers();
+        })
+        .catch(err => alert(err.message));
+    }
+
+    function closeTokenModal() {
+      document.getElementById("token-modal").style.display = "none";
+    }
+  </script>
+</body>
+
+</html>
